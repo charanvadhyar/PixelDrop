@@ -63,15 +63,21 @@ export function AppProvider({ children }) {
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        if (session) {
-          setSessionLoading(true);
-          await loadUserFromSession(session, setUser);
-          setSessionLoading(false);
-        } else {
+        try {
+          if (session) {
+            setSessionLoading(true);
+            await loadUserFromSession(session, setUser);
+          } else {
+            setUser(null);
+          }
+        } catch (e) {
+          console.error("Auth state error:", e);
           setUser(null);
-        }
-        if (event === "INITIAL_SESSION") {
-          setAuthReady(true);
+        } finally {
+          setSessionLoading(false);
+          if (event === "INITIAL_SESSION") {
+            setAuthReady(true);
+          }
         }
       }
     );
