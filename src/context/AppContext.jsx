@@ -49,6 +49,7 @@ async function loadUserFromSession(session, setUser) {
 export function AppProvider({ children }) {
   const [user, setUser] = useState(null);
   const [authReady, setAuthReady] = useState(false);
+  const [sessionLoading, setSessionLoading] = useState(false);
   const [adminAuthed, setAdminAuthed] = useState(false);
   const [maxPrice, setMaxPrice] = useState(() => Number(localStorage.getItem("maxPrice") || 500));
   const [maxListings, setMaxListings] = useState(() => Number(localStorage.getItem("maxListings") || 20));
@@ -63,7 +64,9 @@ export function AppProvider({ children }) {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (session) {
+          setSessionLoading(true);
           await loadUserFromSession(session, setUser);
+          setSessionLoading(false);
         } else {
           setUser(null);
         }
@@ -87,7 +90,7 @@ export function AppProvider({ children }) {
   const saveMaxListings = (v) => { const n = Number(v); localStorage.setItem("maxListings", n); setMaxListings(n); };
 
   return (
-    <AppContext.Provider value={{ user, setUser, authReady, adminAuthed, setAdminAuthed, adminLogout, maxPrice, setMaxPrice: saveMaxPrice, maxListings, setMaxListings: saveMaxListings, adSlots, setAdSlots, logout }}>
+    <AppContext.Provider value={{ user, setUser, authReady, sessionLoading, adminAuthed, setAdminAuthed, adminLogout, maxPrice, setMaxPrice: saveMaxPrice, maxListings, setMaxListings: saveMaxListings, adSlots, setAdSlots, logout }}>
       {children}
     </AppContext.Provider>
   );

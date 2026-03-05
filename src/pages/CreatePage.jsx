@@ -12,7 +12,7 @@ const TYPES = [
 
 export default function CreatePage() {
   const navigate = useNavigate();
-  const { user, authReady, maxPrice } = useApp();
+  const { user, authReady, sessionLoading, maxPrice } = useApp();
 
   const [assetType, setAssetType] = useState("IMAGE");
   const [title, setTitle] = useState("");
@@ -23,7 +23,7 @@ export default function CreatePage() {
   const [error, setError] = useState("");
   const [done, setDone] = useState(false);
 
-  if (!authReady) return null;
+  if (!authReady || sessionLoading) return null;
   if (!user) return <Navigate to="/auth" replace />;
 
   const cfg = TYPES.find(t => t.id === assetType);
