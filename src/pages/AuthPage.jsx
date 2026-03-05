@@ -9,7 +9,7 @@ export default function AuthPage() {
   const { setUser, user } = useApp();
 
   useEffect(() => {
-    if (user) navigate("/create");
+    if (user) navigate("/marketplace");
   }, [user, navigate]);
   const [mode, setMode] = useState("login");
   const [username, setUsername] = useState("");
@@ -27,7 +27,7 @@ export default function AuthPage() {
       if (mode === "login") {
         const { error: err } = await supabase.auth.signInWithPassword({ email, password });
         if (err) { setError(err.message); return; }
-        // useEffect navigates once onAuthStateChange sets the user
+        navigate("/marketplace"); // navigate immediately — profile loads in background
       } else {
         if (!username || !email || !password) { setError("Fill in all fields!"); return; }
         if (password.length < 6) { setError("Password needs to be at least 6 characters."); return; }

@@ -28,18 +28,22 @@ async function loadUserFromSession(session, setUser) {
     profile.email = email;
   }
 
-  const { count } = await supabase
-    .from("profiles")
-    .select("*", { count: "exact", head: true })
-    .gt("coins", profile.coins);
-
   setUser({
     id: session.user.id,
     username: profile.username,
     email: session.user.email,
     coins: profile.coins,
-    rank: (count || 0) + 1,
+    rank: null,
   });
+
+  // Fetch rank in background — doesn't block login
+  supabase
+    .from("profiles")
+    .select("*", { count: "exact", head: true })
+    .gt("coins", profile.coins)
+    .then(({ count }) => {
+      setUser(prev => prev ? { ...prev, rank: (count || 0) + 1 } : prev);
+    });
 }
 
 export function AppProvider({ children }) {
